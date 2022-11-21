@@ -1,11 +1,13 @@
 import React from "react";
 import { Badge, Box, SimpleGrid, Text } from "@chakra-ui/core";
 import { Link } from "react-router-dom";
+import {Heart} from 'react-feather'
 
 import Error from "./error";
 import Breadcrumbs from "./breadcrumbs";
 import LoadMoreButton from "./load-more-button";
 import { useSpaceXPaginated } from "../utils/use-space-x";
+import { useFavorites } from "../contexts/favorite";
 
 const PAGE_SIZE = 12;
 
@@ -41,7 +43,24 @@ export default function LaunchPads() {
   );
 }
 
-function LaunchPadItem({ launchPad }) {
+export function LaunchPadItem({ launchPad }) {
+  const [{ pads }, { addPad, removePad }] = useFavorites()
+
+	function handleAddFavorite(event) {
+		event.preventDefault()
+
+		addPad(launchPad)
+		// localStorage.setItem(`${launchPad.name}`, JSON.stringify(launchPad))
+	}
+
+	function handleRemoveFavorite(event) {
+		event.preventDefault()
+		event.stopPropagation()
+		
+		removePad(launchPad.site_id)
+		// localStorage.removeItem(`${launchPad.name}`)
+	}
+
   return (
     <Box
       as={Link}
@@ -88,6 +107,13 @@ function LaunchPadItem({ launchPad }) {
         <Text color="gray.500" fontSize="sm">
           {launchPad.vehicles_launched.join(", ")}
         </Text>
+        <Box marginLeft='auto'>
+						{pads.has(launchPad.site_id) ? (
+							<Heart stroke='transparent' fill='#FF0000' onClick={handleRemoveFavorite}>Remove favorite</Heart>
+						) : (
+							<Heart onClick={handleAddFavorite}>Add favorite</Heart>
+						)}
+					</Box>
       </Box>
     </Box>
   );
